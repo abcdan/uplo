@@ -4,9 +4,10 @@ import (
 	"log"
 	"os"
 	"time"
-	"uplo/helper"
+	"uplo/routes"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/joho/godotenv"
 )
@@ -14,12 +15,16 @@ import (
 func main() {
 	app := fiber.New()
 
+	app.Use(cors.New(cors.Config{
+		AllowCredentials: true,
+	}))
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("Could not load .env file, using environment variables.")
 	}
 
-	helper.ConnectDB()
+	// helper.ConnectDB()
 
 	app.Static("/", "./public")
 	app.Static("/404", "./public/404.html")
@@ -32,6 +37,8 @@ func main() {
 		Max:        50,
 		Expiration: 1 * time.Minute,
 	}))
+
+	routes.UploadRoutes(app)
 
 	app.Use(func(c *fiber.Ctx) error {
 		if c.Path() == "*" {

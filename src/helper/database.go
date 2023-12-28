@@ -26,5 +26,5 @@ func ConnectDB() {
 		log.Fatal(err)
 	}
 
-	db = client.Database("nxt")
+	db = client.Database("uplo")
 }

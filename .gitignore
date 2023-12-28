@@ -8,6 +8,9 @@
 *.so
 *.dylib
 
+/src/public/uploads/*
+!/src/public/uploads/*.gitkeep
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -21,3 +24,5 @@
 go.work
 
 .env
+
+.DS_Store
