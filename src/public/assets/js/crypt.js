@@ -9,16 +9,30 @@ function generateRandomSecret() {
 
 function secretToBase64(secret) {
   console.log("Converting secret to base64...");
-  let secretBase64 = btoa(String.fromCharCode(...secret));
-  console.log("Converted secret: ", secretBase64);
-  return secretBase64;
+  let secretAsString = Array.from(secret)
+    .map((b) => String.fromCharCode(b))
+    .join("");
+  let encodedSecret = btoa(secretAsString);
+  console.log("Converted secret: ", encodedSecret);
+  return encodedSecret;
 }
 
-function base64ToSecret(secretBase64) {
-  console.log("Converting base64 to secret...");
-  let secret = Uint8Array.from(atob(secretBase64), (c) => c.charCodeAt(0));
-  console.log("Converted secret: ", secret);
-  return secret;
+function base64ToSecret(encodedSecret) {
+  console.log("Converting base64 to Uint8Array...");
+  try {
+    let secretAsString = atob(encodedSecret);
+    let bytes = new Uint8Array(
+      secretAsString.split("").map((c) => c.charCodeAt(0))
+    );
+    console.log("Converted secret: ", bytes);
+    return bytes;
+  } catch (e) {
+    console.error(
+      "Failed to decode base64 string. Please ensure it is correctly encoded: ",
+      e
+    );
+    return null;
+  }
 }
 
 async function encrypt(data, secret) {
@@ -26,7 +40,7 @@ async function encrypt(data, secret) {
   let key = await window.crypto.subtle.importKey(
     "raw",
     secret,
-    { name: "AES-GCM", length: 128 }, // Added length property
+    { name: "AES-GCM", length: 128 },
     false,
     ["encrypt", "decrypt"]
   );
@@ -47,22 +61,22 @@ function encryptFile(file) {
   let secret = generateRandomSecret();
   let reader = new FileReader();
   reader.onload = async function (event) {
-    // Made the function async
     console.log("File loaded, starting encryption...");
     let data = new Uint8Array(event.target.result);
-    let encryptedData = await encrypt(data, secret); // Await the encrypt function
+    let encryptedData = await encrypt(data, secret);
     console.log("File encrypted.");
-    return { file: encryptedData, secret: secret };
+    return { file: encryptedData, secret: secretToBase64(secret) };
   };
   reader.readAsArrayBuffer(file);
 }
 
-async function decryptFile(encryptedData, secret) {
-  console.log("Decrypting data with secret: ", secret);
+async function decryptFile(encryptedData, secretBase64) {
+  console.log("Decrypting data with secret: ", secretBase64);
+  let secret = base64ToSecret(secretBase64);
   let key = await window.crypto.subtle.importKey(
     "raw",
     secret,
-    { name: "AES-GCM", length: 128 }, // Added length property
+    { name: "AES-GCM", length: 128 },
     false,
     ["encrypt", "decrypt"]
   );

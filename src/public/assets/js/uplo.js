@@ -1,12 +1,22 @@
 async function downloadFile(fileName, secret) {
+  console.log(
+    "Starting downloadFile function with fileName: ",
+    fileName,
+    " and secret: ",
+    secret
+  );
   const response = await fetch(`/api/download/${fileName}`);
+  console.log("Response from fetch: ", response);
   const encryptedData = await response.arrayBuffer();
+  console.log("Encrypted data: ", encryptedData);
   const decryptedData = await decryptFile(
     encryptedData,
     base64ToSecret(secret)
   );
+  console.log("Decrypted data: ", decryptedData);
   const blob = new Blob([decryptedData], { type: "application/octet-stream" });
   const url = window.URL.createObjectURL(blob);
+  console.log("Blob URL: ", url);
 
   const link = document.createElement("a");
   link.href = url;
@@ -42,12 +52,12 @@ function dropHandler(e) {
           const b64s = secretToBase64(secret);
           Swal.fire({
             title: "Success!",
-            text: data.url + "?s=" + b64s,
+            text: data.url + "&s=" + b64s,
             icon: "success",
             confirmButtonText: "Copy to Clipboard",
           }).then((result) => {
             if (result.isConfirmed) {
-              navigator.clipboard.writeText(data.url + "?s=" + b64s);
+              navigator.clipboard.writeText(data.url + "&s=" + b64s);
             }
           });
         });
@@ -86,12 +96,12 @@ document.getElementById("fileArea").addEventListener("click", function () {
             console.log(data);
             Swal.fire({
               title: "Success!",
-              text: data.url + "?s=" + secret,
+              text: data.url + "&s=" + secret,
               icon: "success",
               confirmButtonText: "Copy to Clipboard",
             }).then((result) => {
               if (result.isConfirmed) {
-                navigator.clipboard.writeText(data.url + "?s=" + secret);
+                navigator.clipboard.writeText(data.url + "&s=" + secret);
               }
             });
           });
