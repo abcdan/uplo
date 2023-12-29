@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"io"
 	"os"
 
@@ -8,10 +10,11 @@ import (
 )
 
 func Upload(c *fiber.Ctx) error {
-	file, err := c.FormFile("file")
+	form, err := c.MultipartForm()
 	if err != nil {
 		return err
 	}
+	file := form.File["file"][0]
 
 	src, err := file.Open()
 	if err != nil {
@@ -19,25 +22,31 @@ func Upload(c *fiber.Ctx) error {
 	}
 	defer src.Close()
 
-	// hash := md5.New()
-	// if _, err := io.Copy(hash, src); err != nil {
-	// 	return err
-	// }
-	// hashInBytes := hash.Sum(nil)[:16]
-	// md5Hash := hex.EncodeToString(hashInBytes)
-
-	dst, err := os.Create("../public/uploads/" + file.Filename)
+	dst, err := os.Create("./public/uploads/" + file.Filename)
 	if err != nil {
 		return err
 	}
 	defer dst.Close()
 
-	src.Seek(0, 0) // reset the read pointer to the start of the file
 	if _, err := io.Copy(dst, src); err != nil {
 		return err
 	}
+	src.Close()
+	dst.Close()
 
-	return nil
+	hasher := md5.New()
+	io.Copy(hasher, src)
+	md5 := hex.EncodeToString(hasher.Sum(nil))
+
+	domain := os.Getenv("DOMAIN")
+	url := "https://" + domain + "/view/" + file.Filename
+
+	return c.JSON(fiber.Map{
+		"url":      url,
+		"md5":      md5,
+		"filesize": file.Size,
+		"filename": file.Filename,
+	})
 }
 
 func UploadRoutes(app *fiber.App) {

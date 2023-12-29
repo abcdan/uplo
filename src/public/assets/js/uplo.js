@@ -4,9 +4,10 @@ function dropHandler(e) {
 
   let file = e.dataTransfer.files[0];
   let reader = new FileReader();
+  let secret = generateRandomSecret();
   reader.onload = function (event) {
     let data = new Uint8Array(event.target.result);
-    encrypt(data, generateRandomSecret()).then((encryptedData) => {
+    encrypt(data, secret).then((encryptedData) => {
       let formData = new FormData();
       let randomFileName =
         Math.random().toString(36).substring(2, 34) +
@@ -16,7 +17,22 @@ function dropHandler(e) {
       fetch("/api/upload", {
         method: "POST",
         body: formData,
-      });
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          const b64s = secretToBase64(secret);
+          Swal.fire({
+            title: "Success!",
+            text: data.url + "?s=" + b64s,
+            icon: "success",
+            confirmButtonText: "Copy to Clipboard",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              navigator.clipboard.writeText(data.url + "?s=" + b64s);
+            }
+          });
+        });
     });
   };
   reader.readAsArrayBuffer(file);
@@ -33,9 +49,10 @@ document.getElementById("fileArea").addEventListener("click", function () {
   input.onchange = (e) => {
     let file = e.target.files[0];
     let reader = new FileReader();
+    let secret = generateRandomSecret();
     reader.onload = function (event) {
       let data = new Uint8Array(event.target.result);
-      encrypt(data, generateRandomSecret()).then((encryptedData) => {
+      encrypt(data, secret).then((encryptedData) => {
         let formData = new FormData();
         let randomFileName =
           Math.random().toString(36).substring(2, 34) +
@@ -45,7 +62,21 @@ document.getElementById("fileArea").addEventListener("click", function () {
         fetch("/api/upload", {
           method: "POST",
           body: formData,
-        });
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            Swal.fire({
+              title: "Success!",
+              text: data.url + "?s=" + secret,
+              icon: "success",
+              confirmButtonText: "Copy to Clipboard",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                navigator.clipboard.writeText(data.url + "?s=" + secret);
+              }
+            });
+          });
       });
     };
     reader.readAsArrayBuffer(file);

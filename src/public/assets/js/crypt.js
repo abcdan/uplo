@@ -1,9 +1,23 @@
 function generateRandomSecret() {
   console.log("Generating random secret...");
-  let array = new Uint8Array(16); // Changed from 20 to 16 to generate a 128-bit key
+  let array = new Uint8Array(16);
   window.crypto.getRandomValues(array);
   let secret = array;
   console.log("Generated secret: ", secret);
+  return secret;
+}
+
+function secretToBase64(secret) {
+  console.log("Converting secret to base64...");
+  let secretBase64 = btoa(String.fromCharCode(...secret));
+  console.log("Converted secret: ", secretBase64);
+  return secretBase64;
+}
+
+function base64ToSecret(secretBase64) {
+  console.log("Converting base64 to secret...");
+  let secret = Uint8Array.from(atob(secretBase64), (c) => c.charCodeAt(0));
+  console.log("Converted secret: ", secret);
   return secret;
 }
 
