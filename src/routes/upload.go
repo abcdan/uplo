@@ -40,7 +40,7 @@ func Upload(c *fiber.Ctx) error {
 	md5 := hex.EncodeToString(hasher.Sum(nil))
 
 	domain := os.Getenv("DOMAIN")
-	url := "https://" + domain + "/view/" + file.Filename
+	url := "https://" + domain + "/view?f=" + file.Filename
 
 	return c.JSON(fiber.Map{
 		"url":      url,

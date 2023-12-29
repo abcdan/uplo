@@ -1,3 +1,21 @@
+async function downloadFile(fileName, secret) {
+  const response = await fetch(`/api/download/${fileName}`);
+  const encryptedData = await response.arrayBuffer();
+  const decryptedData = await decryptFile(
+    encryptedData,
+    base64ToSecret(secret)
+  );
+  const blob = new Blob([decryptedData], { type: "application/octet-stream" });
+  const url = window.URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 function dropHandler(e) {
   e.preventDefault();
   e.stopPropagation();

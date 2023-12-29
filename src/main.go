@@ -30,6 +30,7 @@ func main() {
 
 	app.Static("/", "./public")
 	app.Static("/404", "./public/404.html")
+	app.Static("/view", "./public/view.html")
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.SendStatus(200)
@@ -41,6 +42,7 @@ func main() {
 	}))
 
 	routes.UploadRoutes(app)
+	routes.DownloadRoutes(app)
 
 	app.Use(func(c *fiber.Ctx) error {
 		if c.Path() == "*" {

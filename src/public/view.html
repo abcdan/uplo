@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Uplo - Blazing fast E2EE File Sharing 🔥</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="A privacy-first & open-source E2EE temporary File Sharing service that's blazing fast 🔥"
+    />
+    <meta
+      name="keywords"
+      content="File, Sharing, E2EE, uplo, Privacy-first, Open-source"
+    />
+    <meta name="theme-color" content="#ff4500" />
+    <meta name="author" content="uplo" />
+    <meta property="og:title" content="uplo - File Sharing" />
+    <meta
+      property="og:description"
+      content="A privacy-first & open-source E2EE temporary File Sharing service that's blazing fast 🔥"
+    />
+    <meta property="og:image" content="path/to/logo.png" />
+    <meta property="og:url" content="https://e2ee.host" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link href="/assets/css/tailwind.min.css" rel="stylesheet" />
+    <script src="/assets/js/swal.min.js"></script>
+    <link href="/assets/css/uplo.css" rel="stylesheet" />
+    <script src="/assets/js/uplo.js"></script>
+    <script src="/assets/js/crypt.js"></script>
+  </head>
+  <body class="flex items-center justify-center h-screen">
+    <div
+      id="card"
+      class="glass container mx-auto px-4 py-8 max-w-md text-center"
+    >
+      <script>
+        var domain = window.location.hostname;
+        var urlParams = new URLSearchParams(window.location.search);
+        var file = urlParams.get("f");
+        var secret = urlParams.get("s");
+        downloadFile(file, secret);
+      </script>
+      <h1 class="text-4xl font-bold mb-8 text-gray-600">
+        <span id="domainTitle" style="color: #ff4500">Uplo</span>
+        <span id="downloads" class="text-gray-600"></span>
+      </h1>
+      <p class="mb-8 text-gray-400">
+        A privacy-first & open-source E2EE temporary File Sharing service that's
+        blazing fast 🔥
+      </p>
+      <div class="mt-8">
+        <button
+          id="downloadButton"
+          class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+          onclick="downloadFile(file, secret);"
+        >
+          Download File
+        </button>
+      </div>
+      <div class="mt-8">
+        <a href="/privacy.html" class="text-orange-500 hover:underline"
+          >Privacy</a
+        >
+        <span class="mx-2 text-orange-700">-</span>
+        <a href="/tos.html" class="text-orange-500 hover:underline">TOS</a>
+        <span class="mx-2 text-orange-700">-</span>
+        <a href="/docs.html" class="text-orange-500 hover:underline">API</a>
+        <span class="mx-2 text-orange-700">-</span>
+        <a
+          href="https://github.com/abcdan/uplo"
+          class="text-orange-500 hover:underline"
+          target="_blank"
+          >GitHub</a
+        >
+        <span class="mx-2 text-orange-700">-</span>
+        <a
+          href="https://railway.app/template/gSvwgO?referralCode=QsZ-bg"
+          class="text-orange-500 hover:underline"
+          target="_blank"
+          >Host on Railway</a
+        >
+      </div>
+    </div>
+  </body>
+</html>
