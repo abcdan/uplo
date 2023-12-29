@@ -22,7 +22,8 @@ func Upload(c *fiber.Ctx) error {
 	}
 	defer src.Close()
 
-	dst, err := os.Create("./public/uploads/" + file.Filename)
+	uploadsDir := os.Getenv("UPLOADS_PATH")
+	dst, err := os.Create(uploadsDir + "/" + file.Filename)
 	if err != nil {
 		return err
 	}
