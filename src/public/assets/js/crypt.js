@@ -7,36 +7,43 @@ function generateRandomSecret() {
   return secret;
 }
 
-function secretToBase64(secret) {
-  console.log("Converting secret to base64...");
-  let secretAsString = Array.from(secret)
-    .map((b) => String.fromCharCode(b))
-    .join("");
-  let encodedSecret = btoa(secretAsString);
-  console.log("Converted secret: ", encodedSecret);
-  return encodedSecret;
+function mergeSecretAndIvToBase64(secret, iv) {
+  console.log("Merging secret and iv and converting to base64...");
+  console.log("Secret: ", secret);
+  console.log("Iv: ", iv);
+  let merged = btoa(
+    "S|" +
+      String.fromCharCode.apply(null, secret) +
+      "|I|" +
+      String.fromCharCode.apply(null, new Uint8Array(iv))
+  );
+  console.log("Merged and converted secret and iv: ", merged);
+  return merged;
 }
 
-function base64ToSecret(encodedSecret) {
-  console.log("Converting base64 to Uint8Array...");
-  try {
-    let secretAsString = atob(encodedSecret);
-    let bytes = new Uint8Array(
-      secretAsString.split("").map((c) => c.charCodeAt(0))
-    );
-    console.log("Converted secret: ", bytes);
-    return bytes;
-  } catch (e) {
-    console.error(
-      "Failed to decode base64 string. Please ensure it is correctly encoded: ",
-      e
-    );
-    return null;
+function splitBase64ToSecretAndIv(merged) {
+  console.log("Splitting base64 to secret and iv...");
+  let decodedMerged = atob(merged);
+  console.log("Decoded merged secret and iv: ", decodedMerged);
+
+  let split = decodedMerged.split("|");
+  let secret, iv;
+  if (typeof split[1] === "string") {
+    console.log("Split[1]: ", split[1]);
+    secret = new Uint8Array(split[1].split("").map((c) => c.charCodeAt(0)));
   }
+  if (typeof split[3] === "string") {
+    console.log("Split[3]: ", split[3]);
+    iv = new Uint8Array(split[3].split("").map((c) => c.charCodeAt(0)));
+  }
+  console.log("Converted secret: ", secret);
+  console.log("Converted iv: ", iv);
+  return { secret, iv };
 }
 
-async function encrypt(data, secret) {
-  console.log("Encrypting data with secret: ", secret);
+async function encryptFile(file, secret) {
+  console.log("Encrypting file: ", file);
+  let data = new Uint8Array(file);
   let key = await window.crypto.subtle.importKey(
     "raw",
     secret,
@@ -44,35 +51,22 @@ async function encrypt(data, secret) {
     false,
     ["encrypt", "decrypt"]
   );
+  let iv = window.crypto.getRandomValues(new Uint8Array(12));
   let encryptedData = await window.crypto.subtle.encrypt(
     {
       name: "AES-GCM",
-      iv: window.crypto.getRandomValues(new Uint8Array(12)),
+      iv: iv,
     },
     key,
     data
   );
   console.log("Encrypted data: ", encryptedData);
-  return encryptedData;
+  console.log("Iv: ", iv);
+  return { encryptedData, iv };
 }
 
-function encryptFile(file) {
-  console.log("Encrypting file: ", file);
-  let secret = generateRandomSecret();
-  let reader = new FileReader();
-  reader.onload = async function (event) {
-    console.log("File loaded, starting encryption...");
-    let data = new Uint8Array(event.target.result);
-    let encryptedData = await encrypt(data, secret);
-    console.log("File encrypted.");
-    return { file: encryptedData, secret: secretToBase64(secret) };
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-async function decryptFile(encryptedData, secretBase64) {
-  console.log("Decrypting data with secret: ", secretBase64);
-  let secret = base64ToSecret(secretBase64);
+async function decryptFile(encryptedData, secret, iv) {
+  console.log("Decrypting file with secret: ", secret);
   let key = await window.crypto.subtle.importKey(
     "raw",
     secret,
@@ -80,14 +74,19 @@ async function decryptFile(encryptedData, secretBase64) {
     false,
     ["encrypt", "decrypt"]
   );
-  let decryptedData = await window.crypto.subtle.decrypt(
-    {
-      name: "AES-GCM",
-      iv: window.crypto.getRandomValues(new Uint8Array(12)),
-    },
-    key,
-    encryptedData
-  );
-  console.log("Decrypted data: ", decryptedData);
-  return decryptedData;
+  try {
+    console.log("Key for decryption: ", key);
+    let decryptedData = await window.crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv: iv,
+      },
+      key,
+      encryptedData
+    );
+    console.log("Decrypted data: ", decryptedData);
+    return decryptedData;
+  } catch (error) {
+    console.error("Error during decryption: ", error);
+  }
 }

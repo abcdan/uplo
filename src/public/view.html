@@ -39,8 +39,7 @@
         var domain = window.location.hostname;
         var urlParams = new URLSearchParams(window.location.search);
         var file = urlParams.get("f");
-        var secret = urlParams.get("s");
-        downloadFile(file, secret);
+        var x = urlParams.get("x");
       </script>
       <h1 class="text-4xl font-bold mb-8 text-gray-600">
         <span id="domainTitle" style="color: #ff4500">Uplo</span>
@@ -54,7 +53,7 @@
         <button
           id="downloadButton"
           class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-          onclick="downloadFile(file, secret);"
+          onclick="downloadFile(file, x);"
         >
           Download File
         </button>
