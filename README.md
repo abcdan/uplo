@@ -1,5 +1,5 @@
 # Uplo 🗄️🔗
-Welcome to Uplo, an end-to-end encrypted (e2ee) temporary file sharing service. This open-source project is designed with privacy in mind, ensuring that your data is always protected. A public version is hosted on [e2ee.host](https://e2ee.host).
+Welcome to Uplo, an end-to-end encrypted (e2ee) temporary file sharing service. This open-source project is designed with privacy in mind, ensuring that your data is always protected.
 
 ## Features
 
